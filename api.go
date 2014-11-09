@@ -9,9 +9,18 @@ import (
 )
 
 type XMLOpt struct {
-	Packages []string `xml:"packages"`
-	Type     string   `xml:"type,attr"`
-	Severity string   `xml:"severity,attr"`
+	Packages    []string `xml:"packages"`
+	Product     string   `xml:"product,attr"`
+	References  string   `xml:"references,attr"`
+	Type        string   `xml:"type,attr"`
+	Topic       string   `xml:"topic,attr"`
+	OsRelease   []int    `xml:"os_release"`
+	OsArch      []string `xml:"os_arch"`
+	Severity    string   `xml:"severity,attr"`
+	Solution    string   `xml:"solution,attr"`
+	Notes       string   `xml:"notes,attr"`
+	Synopsis    string   `xml:"synopsis,attr"`
+	Description string   `xml:"description,attr"`
 }
 
 type XMLOpts struct {
