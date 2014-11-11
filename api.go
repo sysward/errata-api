@@ -1,7 +1,5 @@
 package main
 
-// http://cefs.steve-meier.de/errata.latest.xml
-
 import (
 	"encoding/json"
 	"encoding/xml"
@@ -58,23 +56,26 @@ func ShouldRefreshErrata() bool {
 }
 
 func GetSecurityErrata() []byte {
-	file, err := ioutil.ReadFile("errata.latest.xml")
+	// http://cefs.steve-meier.de/errata.latest.xml
+	resp, err := http.Get("http://cefs.steve-meier.de/errata.latest.xml")
+	// file, err := ioutil.ReadFile("errata.latest.xml")
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		panic(err)
 	}
-	return file
+	resp.Body.Close()
+	return body
 }
 
-func ParseSecurityErrata() []XMLOpt {
+func ParseSecurityErrata() {
 	v := XMLOpts{}
 	errata := GetSecurityErrata()
 	err := xml.Unmarshal(errata, &v)
 	if err != nil {
 		fmt.Printf("error: %v", err)
-		return nil
+		return
 	}
 
-	security := []XMLOpt{}
 	for _, pkg := range v.Opt {
 		if pkg.Type == "Security Advisory" {
 			for _, ver := range pkg.OsRelease {
@@ -88,12 +89,13 @@ func ParseSecurityErrata() []XMLOpt {
 			}
 		}
 	}
-	return security
 }
 
 func CheckForUpdates() {
 	if ShouldRefreshErrata() {
+		fmt.Println("[ ] Refreshing errata....", time.Now())
 		ParseSecurityErrata()
+		fmt.Println("[x] Refreshing errata....", time.Now())
 	}
 }
 
@@ -103,8 +105,6 @@ var versionLUT map[int]packageLUT = map[int]packageLUT{}
 
 func AppendIfMissing(slice []XMLOpt, x XMLOpt) []XMLOpt {
 	for _, ele := range slice {
-		// HEREEEEEEEEEEEEE
-		// DO SOMETHING WITH .hash on struct to compare something
 		if ele.Hash() == x.Hash() {
 			return slice
 		}
