@@ -1,1 +1,1 @@
-web: api
+web: errata_api
