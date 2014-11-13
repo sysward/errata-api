@@ -1,0 +1,5 @@
+{
+	"ImportPath": "errata_api",
+	"GoVersion": "go1.3.3",
+	"Deps": []
+}

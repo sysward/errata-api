@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -187,6 +188,9 @@ func main() {
 	}()
 
 	http.HandleFunc("/api/", apiHandler)
-	http.ListenAndServe("0.0.0.0:8080", nil)
+	err := http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+	if err != nil {
+		panic(err)
+	}
 
 }
