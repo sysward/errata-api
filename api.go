@@ -153,9 +153,16 @@ func (p *XMLOpt) Equal(o XMLOpt) bool {
 func apiHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path[len("/api/"):]
 	pathArr := strings.Split(path, "/")
-	_, ver, pkg, rel := pathArr[1], pathArr[2], pathArr[3], pathArr[4]
-	version, _ := strconv.ParseInt(ver, 10, 0)
-	release, _ := strconv.ParseInt(rel, 10, 0)
+	_, osRelease, pkg, pkgVersion := pathArr[1], pathArr[2], pathArr[3], pathArr[4]
+
+	majorVer := strings.Split(pkgVersion, ".")[0]
+	version, _ := strconv.ParseInt(osRelease, 10, 0)
+	release, _ := strconv.ParseInt(majorVer, 10, 0)
+
+	//fmt.Println("pkgVersion =", pkgVersion)
+	//fmt.Println("osRelease =", osRelease)
+	//fmt.Println("majorVer =", majorVer)
+	//fmt.Println("pkg =", pkg)
 
 	mutex.RLock()
 	defer mutex.RUnlock()
