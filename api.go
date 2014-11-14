@@ -79,6 +79,13 @@ func GetSecurityErrata() []byte {
 	return body
 }
 
+func ParsePackageVersion(name string) int {
+	parts := strings.Split(name, "-")
+	version := strings.Split(parts[1], ".")
+	majorVersion, _ := strconv.ParseInt(version[0], 10, 0)
+	return int(majorVersion)
+}
+
 func ParseSecurityErrata() {
 	v := XMLOpts{}
 	errata := GetSecurityErrata()
@@ -95,10 +102,15 @@ func ParseSecurityErrata() {
 				if versionLUT[ver] == nil {
 					versionLUT[ver] = packageLUT{}
 				}
-				if versionLUT[ver][pkg.Release] == nil {
-					versionLUT[ver][pkg.Release] = []XMLOpt{}
+				for _, pack := range pkg.Packages {
+					major := ParsePackageVersion(pack)
+
+					if versionLUT[ver][major] == nil {
+						versionLUT[ver][major] = []XMLOpt{}
+					}
+
+					versionLUT[ver][major] = append(versionLUT[ver][major], pkg)
 				}
-				versionLUT[ver][pkg.Release] = append(versionLUT[ver][pkg.Release], pkg)
 			}
 		}
 	}
@@ -170,7 +182,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	respPkgs := []XMLOpt{}
 	for _, xpkg := range xpkgs {
 		for _, vpkg := range xpkg.Packages {
-			if strings.Contains(vpkg, pkg) {
+			if strings.Contains(vpkg, pkg) && strings.Contains(vpkg, pkgVersion) {
 				respPkgs = AppendIfMissing(respPkgs, xpkg)
 			}
 		}
