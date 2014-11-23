@@ -48,7 +48,7 @@ func ShouldRefreshErrata() bool {
 	defer resp.Body.Close()
 
 	// Example: Fri, 31 Oct 2014 09:40:46 GMT
-	const longForm = "Fri, 2 Jan 2006 3:04:05 MST"
+	const longForm = "Mon, 02 Jan 2006 03:04:05 MST"
 	_lastModified, err := time.Parse(longForm, resp.Header.Get("Last-Modified"))
 	if err != nil {
 		fmt.Println("[~] Time Parse failed: ", resp.Header.Get("Last-Modified"))
@@ -80,6 +80,9 @@ func GetSecurityErrata() []byte {
 }
 
 func ParsePackageVersion(name string) int {
+	if !strings.Contains(name, "-") {
+		return 0
+	}
 	parts := strings.Split(name, "-")
 	version := strings.Split(parts[1], ".")
 	majorVersion, _ := strconv.ParseInt(version[0], 10, 0)
