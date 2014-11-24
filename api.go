@@ -70,7 +70,6 @@ func GetSecurityErrata() []byte {
 	// http://cefs.steve-meier.de/errata.latest.xml
 	resp, err := http.Get("http://cefs.steve-meier.de/errata.latest.xml")
 	defer resp.Body.Close()
-	// file, err := ioutil.ReadFile("errata.latest.xml")
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		panic(err)
@@ -196,6 +195,17 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func apiUpdatedAt(w http.ResponseWriter, r *http.Request) {
+	resp := struct {
+		UpdatedAt time.Time
+	}{lastModified}
+
+	err := json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func main() {
 
 	CheckForUpdates()
@@ -209,6 +219,7 @@ func main() {
 		}
 	}()
 
+	http.HandleFunc("/api/updated", apiUpdatedAt)
 	http.HandleFunc("/api/", apiHandler)
 	err := http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 	if err != nil {
